@@ -284,10 +284,15 @@ class PipelineTests(unittest.TestCase):
         class Empty:
             def preflight(self, models): pass
             def ask(self, *args): return []
-        self.config.similarity = "hybrid"  # no embedding installation needed for empty corpus results
         run(self.config, client=Empty())
         self.assertEqual(read_json(self.base / "output/final_set.json"), [])
         self.assertIn("article_id", (self.base / "output/final_set.csv").read_text())
+
+    def test_missing_semantic_extra_fails_before_inference(self):
+        self.config.similarity = "hybrid"
+        with patch("importlib.util.find_spec", return_value=None), self.assertRaisesRegex(RuntimeError, r"react-gpt\[semantic\]"):
+            run(self.config)
+        self.assertEqual(Server.calls, [])
 
     def test_missing_model_fails_before_inference(self):
         self.config.models = ["missing:model"]
