@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "Citing this software is a condition of its license. Please cite it as below."
+title: "ReACT-GPT"
+type: software
+version: "0.1.0"
+date-released: "2026-10-05"
+authors:
+  - family-names: "Khan"
+    given-names: "Nafiz Imtiaz"
+    email: "nikhan@ucdavis.edu"
+    affiliation: "University of California, Davis"
+  - family-names: "Filkov"
+    given-names: "Vladimir"
+    email: "vfilkov@ucdavis.edu"
+    affiliation: "University of California, Davis"
+repository-code: "https://github.com/Nafiz43/react-gpt-package"
+url: "https://pypi.org/project/react-gpt/"
+license-url: "https://github.com/Nafiz43/react-gpt-package/blob/main/LICENSE"
+keywords:
+  - llm
+  - literature mining
+  - evidence-based recommendations

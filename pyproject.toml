@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "react-gpt"
+dynamic = ["version"]
+description = "Extract source-grounded, evidence-based recommendations from research literature with local or hosted LLMs"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "LicenseRef-ReACT-GPT-Noncommercial"
+license-files = ["LICENSE"]
+authors = [
+  {name = "Nafiz Imtiaz Khan", email = "nikhan@ucdavis.edu"},
+  {name = "Vladimir Filkov", email = "vfilkov@ucdavis.edu"},
+]
+keywords = ["llm", "literature-mining", "evidence-based", "recommendations", "ollama", "research-synthesis", "open-source-sustainability"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Science/Research",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Topic :: Text Processing :: Linguistic",
+]
+dependencies = ["tqdm>=4.66"]
+
+[project.optional-dependencies]
+pdf = ["pymupdf4llm>=0.0.17"]
+semantic = ["sentence-transformers>=3", "scikit-learn>=1.4", "numpy>=1.26"]
+anthropic = ["anthropic>=1"]
+openai = ["openai>=1.40"]
+all = ["react-gpt[pdf,semantic,anthropic,openai]"]
+
+[project.urls]
+Homepage = "https://github.com/Nafiz43/react-gpt-package"
+Source = "https://github.com/Nafiz43/react-gpt-package"
+Issues = "https://github.com/Nafiz43/react-gpt-package/issues"
+
+[project.scripts]
+react-gpt = "react_gpt.cli:main"
+
+[tool.setuptools.dynamic]
+version = {attr = "react_gpt.__version__"}
+
+[tool.setuptools.packages.find]
+include = ["react_gpt*"]
+
+[tool.setuptools.package-data]
+"react_gpt" = ["assets/*.html", "assets/*.css", "assets/*.js", "*.swift"]

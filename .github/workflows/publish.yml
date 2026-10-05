@@ -1,0 +1,58 @@
+# Trusted publishing: no API tokens. Register this repo + workflow as a trusted
+# publisher on test.pypi.org (environment "testpypi") and pypi.org (environment "pypi").
+name: Publish
+on:
+  push:
+    tags: ['v*']          # Tag push -> TestPyPI only.
+  workflow_dispatch:      # Manual run from the Actions tab -> real PyPI.
+    inputs:
+      confirm:
+        description: 'Type "pypi" to publish this ref to the real PyPI'
+        required: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install build twine
+      - run: python -m build
+      - run: twine check --strict dist/*
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+  testpypi:
+    if: github.event_name == 'push'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/react-gpt
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+  pypi:
+    if: github.event_name == 'workflow_dispatch' && inputs.confirm == 'pypi'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/react-gpt
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1

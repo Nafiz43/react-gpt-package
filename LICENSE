@@ -1,0 +1,59 @@
+ReACT-GPT Noncommercial Research License
+
+Copyright (c) 2026 The Regents of the University of California.
+All rights reserved.
+
+Authors: Nafiz Imtiaz Khan and Vladimir Filkov, University of California, Davis.
+
+1. Permitted use. The Regents of the University of California ("The Regents")
+   grant you a personal, non-exclusive, non-transferable, royalty-free license
+   to install and run the unmodified ReACT-GPT software (the "Software") solely
+   for noncommercial research and educational purposes.
+
+2. Restrictions. Without prior written permission from The Regents, you may not:
+   (a) modify, adapt, translate, or create derivative works of the Software;
+   (b) copy, redistribute, publish, sublicense, sell, rent, or otherwise make
+       the Software, or any part of it, available to any third party; or
+   (c) use the Software, or any output of it, for any commercial purpose,
+       including use in or for the benefit of a for-profit entity, product,
+       or service.
+   Copies made automatically by a package installer for your own permitted
+   use are allowed.
+
+3. Attribution. Any publication, presentation, or other public work that
+   reports results obtained using the Software must cite it as:
+
+     Khan, N. I., & Filkov, V. (2026). ReACT-GPT (Version 0.1.0) [Computer
+     software]. University of California, Davis.
+     https://github.com/Nafiz43/react-gpt-package
+
+   or as specified in the CITATION.cff file distributed with the Software.
+
+4. Permissions. Requests for any use not permitted above, including commercial
+   use, modification, or redistribution, must be directed to:
+
+     UC Davis Technology Transfer Office (Innovation Access)
+     https://research.ucdavis.edu/about/offices/technology-transfer-office/
+
+5. Ownership. The Regents retain all right, title, and interest in the
+   Software. No other rights or licenses, express or implied, including any
+   patent license, are granted, whether by estoppel or otherwise.
+
+6. Third-party services. The Software can send text you provide to third-party
+   model providers that you configure. Your use of those services is governed
+   by their terms; The Regents are not responsible for them.
+
+7. Termination. This license terminates automatically if you breach any of its
+   terms. On termination you must stop using and delete all copies of the
+   Software.
+
+8. Disclaimer. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. ANY
+   OUTPUT OF THE SOFTWARE IS A MODEL JUDGMENT AND IS NOT VERIFIED, CLINICAL, OR
+   PROFESSIONAL ADVICE.
+
+9. Limitation of liability. IN NO EVENT SHALL THE REGENTS OR THE AUTHORS BE
+   LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+   CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION WITH
+   THE SOFTWARE OR ITS USE.
