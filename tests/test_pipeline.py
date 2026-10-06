@@ -325,6 +325,17 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(saved["judge"], "anthropic:claude-opus-5-5")
         self.assertFalse(saved["think"])
 
+    def test_wizard_reasks_invalid_answers(self):
+        answers = [str(self.base / "missing"), str(self.corpus), str(self.base / "wizard-out"), "ftp://x", self.config.ollama_url,
+                   "1", "", "not-installed:1b", "", "maybe", "no", "I{", "ip", "fuzzy", "lexical", str(self.base / "none.csv"), "",
+                   "abc", "1.5", "0.7", "no"]
+        output = io.StringIO()
+        with patch("builtins.input", side_effect=answers), contextlib.redirect_stdout(output):
+            main(["init", "--config", str(self.base / "wizard2.json")])
+        saved = read_json(self.base / "wizard2.json")
+        self.assertEqual((saved["prompting"], saved["similarity"], saved["threshold"], saved["judge"]), ("IP", "lexical", 0.7, None))
+        self.assertEqual(output.getvalue().count("Try again."), 9)
+
     def test_judge_annotates_without_filtering(self):
         self.config.judge = "judge:c"
         run(self.config)

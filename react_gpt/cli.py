@@ -1,5 +1,6 @@
 """Interactive setup and automation-friendly command line interface."""
 import argparse
+import importlib.util
 import json
 import logging
 import sys
@@ -179,22 +180,79 @@ def wizard(path):
     target = Path(path).resolve()
     if target.exists():
         raise ValueError(f"Configuration already exists: {target}; choose another --config path")
-    def ask(label, default=""):
-        return input(f"{label}" + (f" [{default}]" if default else "") + ": ").strip() or default
-    corpus = ask("Corpus file or directory")
-    output = ask("Output directory", "react-output")
-    url = ask("Ollama URL", "http://localhost:11434")
+    def ask(label, default="", check=lambda value: value):
+        """Re-ask until `check` accepts the answer, so mistakes surface at the question that caused them."""
+        while True:
+            value = input(f"{label}" + (f" [{default}]" if default else "") + ": ").strip() or default
+            try:
+                return check(value)
+            except (ValueError, RuntimeError) as exc:
+                print(f"{exc} Try again.")
+
+    def one_of(*options):
+        def check(value):
+            for option in options:
+                if value.lower() == option.lower():
+                    return option
+            raise ValueError(f"Enter one of: {', '.join(options)}.")
+        return check
+
+    def required(value):
+        if not value:
+            raise ValueError("This answer is required.")
+        return value
+
+    def corpus_path(value):
+        if not Path(required(value)).expanduser().exists():
+            raise ValueError(f"{value} does not exist.")
+        discover(Path(value).expanduser())
+        return str(Path(value).expanduser())
+
+    def settings_check(**changed):
+        # Config.validate is the single source of truth for paths and URLs.
+        Config(**{"corpus": corpus, "output": output, "models": ["x"], **changed}).validate()
+        return next(iter(changed.values()))
+
+    def judge_check(value):
+        if value and split_model(value)[0] == "ollama":
+            client.preflight([value])  # installed? Remote keys are asked when the run starts.
+        return value or None
+
+    def similarity_check(value):
+        value = one_of("hybrid", "lexical")(value)
+        if value == "hybrid" and importlib.util.find_spec("sentence_transformers") is None:
+            raise ValueError('Hybrid needs: pip install "react-gpt[semantic]" (or choose lexical).')
+        return value
+
+    def benchmark_check(value):
+        if value and not Path(value).expanduser().is_file():
+            raise ValueError(f"{value} is not a file.")
+        return str(Path(value).expanduser()) if value else None
+
+    def threshold_check(value):
+        try:
+            number = float(value)
+        except ValueError:
+            raise ValueError("Enter a number between 0 and 1.") from None
+        if not 0 <= number <= 1:
+            raise ValueError("Enter a number between 0 and 1.")
+        return number
+
+    yes_no = lambda value: one_of("yes", "no", "y", "n")(value) in {"yes", "y"}
+    corpus = output = ask("Corpus file or directory", check=corpus_path)
+    output = ask("Output directory", "react-output", lambda value: settings_check(output=required(value)))
+    url = ask("Ollama URL", "http://localhost:11434", lambda value: settings_check(ollama_url=value))
     client = ModelClient(Config(corpus=corpus, output=output, models=[], ollama_url=url))
     print("Remote models are also accepted: anthropic:<model>, openai:<model> (and jev:<model> for evaluation/judge).")
     models = select_models(client, "Extraction")
     evaluators = select_models(client, "Evaluation", default=models)
-    judge = ask("Final judge model (blank = no judge; e.g. qwen3:14b, anthropic:claude-opus-5-5, jev:jev-1.13.0)") or None
-    think = ask("Let Ollama thinking models reason first? Slower. yes/no", "no").lower() in {"yes", "y"}
-    prompting = ask("Prompt strategy: IP, CoT, RA", "CoT")
-    similarity = ask("Similarity: hybrid or lexical", "hybrid")
-    benchmark = ask("Calibration CSV (blank uses an explicit threshold)")
-    threshold = float(ask("Similarity threshold (uncalibrated unless benchmark supplied)", "0.65")) if not benchmark else 0.65
-    features = ask("Map socio-technical features? yes/no", "no").lower() in {"yes", "y"}
+    judge = ask("Final judge model (blank = no judge; e.g. qwen3:14b, anthropic:claude-opus-5-5, jev:jev-1.13.0)", check=judge_check)
+    think = ask("Let Ollama thinking models reason first? Slower. yes/no", "no", yes_no)
+    prompting = ask("Prompt strategy: IP, CoT, RA", "CoT", one_of("IP", "CoT", "RA"))
+    similarity = ask("Similarity: hybrid or lexical", "hybrid", similarity_check)
+    benchmark = ask("Calibration CSV (blank uses an explicit threshold)", check=benchmark_check)
+    threshold = ask("Similarity threshold (uncalibrated unless benchmark supplied)", "0.65", threshold_check) if not benchmark else 0.65
+    features = ask("Map socio-technical features? yes/no", "no", yes_no)
     config = Config(corpus=corpus, output=output, models=models,
                     evaluators=evaluators,
                     ollama_url=url, prompting=prompting, similarity=similarity,
